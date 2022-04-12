@@ -1,0 +1,28 @@
+Ansible Loops
+
+*
+- yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+    - postfix
+    - httpd
+	
+*
+vars:
+  users:
+    - ameshki
+    - mfazl
+tasks:
+  - yum:
+      name: "{{item}}"
+    with_items: "{{users}}"	
+
+*
+- user:
+    name: "{{item.name}}"
+	groups: "{{item.group}}"
+  with_items:
+    - name: 'john', groups: 'root'
+    - name: 'abofazl', groups: 'admins'
+	

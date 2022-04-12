@@ -1,0 +1,123 @@
+ansible gw:webserver -i /etc/ansible/siebelhosts --list-hosts --> hosts from gw or webserver
+ansible -m command -a hostname gw -o --> command to run remotely
+ansible -m shell -a set gw -o --> shell to be used instead of running a command.
+ansible -m copy -a 'content="Welcome to Siebel Server\n" dest=/etc/motd' gw
+ansible gw -m yum -a "name=telnet"
+Ansible centos -m setup
+ansible ubuntu -m file -a 'path=/tmp/test state=touch'
+ansible ubuntu -m file -a 'path=/tmp/test state=touch mode=600'
+ansible ubuntu -m file -a 'path=/tmp/test state=file mode=600'
+
+ansible ubuntu -m copy -a 'src=/tmp/x dest=/etc/file'
+ansible ubuntu -m copy  -a 'remote_src=yes src=/tmp/test dest=/tmp/y' --> copy from remote to itself
+ansible centos2 -m setup -a 'gather_subset=!all,!min,network'
+ansible centos2 -m setup -a 'filter=ansible_system_capabilities'
+Variables:
+a) in playbooks
+	- hosts: all
+	  vars:
+	    user: john
+		home: /home/john
+	- hosts: all
+	  vars_files:
+	    - vars/user.yml
+*** vars/user.yml
+user: john
+home: /home/john		
+
+b) in inventory
+
+[databases]
+db1
+db2
+[databases:vars]
+user=john
+
+or
+in a directoy named groups_vars/databases
+user: john
+***
+Array based variables:
+users:
+  ameshki:
+    first_name: abolfazl
+    last_name: Meshki
+    home_dir: /home/ameshki
+  mfazl:
+    first_name: Mohammad
+    last_name: fazl
+    home_dir: /home/fazl
+then users.ameshki.first_name
+
+Inclues:
+- hosts: all
+  vars:
+    rule: http
+  tasks:
+    - name: include vars
+      include_vars: var/servervares.yml
+    - name: include
+	  include: tasks/task.yml
+	  vars:
+	    package: httpd
+	-name: install firewalld
+     yum:
+       name: "{{from servervares.yml}}"
+Loops:
+a) simple
+- yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+    - postfix
+    - httpd
+b) simple2
+vars:
+  users:
+    - ameshki
+    - mfazl
+tasks:
+  - yum:
+      name: "{{item}}"
+    with_items: "{{users}}"	  
+c) simple3
+- user:
+    name: "{{item.name}}"
+	groups: "{{item.group}}"
+  with_items:
+    - name: 'john', groups: 'root'
+    - name: 'abofazl', groups: 'admins'
+d) nested
+- mysql_user:
+    name: "{{ item.[0] }}"
+    priv: "{{ intem[1] }}.*:ALL"
+	append_privs: yes
+	password: password
+  with_nested:
+    - ['ameshki', 'mfazl']
+    - ['clientdb', 'employeedb', 'providerdb']	
+e) nested2
+vars:
+  users:
+  -  ameshki
+  -  mfazl
+tasks:
+  - mysql_user:
+      name: "{{ item.[0] }}"
+      priv: "{{ intem[1] }}.*:ALL"
+  	append_privs: yes
+  	password: password
+    with_nested:
+      - "{{ users}}"
+      - ['clientdb', 'employeedb', 'providerdb']
+when:
+- name: create DB user
+  user:
+    name: db_admin
+  when: inventory_hostname in group ["databases"]
+when and loop:
+- name: install db if enough space provided
+  yum:
+    name: mariadb-servervar
+  with_items: "{{ansible_mounts}}"
+  when: item.mount == "/" and item.size_available > 300000000  
