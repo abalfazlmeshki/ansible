@@ -3,3 +3,7 @@
   tasks:
   -  name: check connection
      ping:
+  -  name: Update OS
+     yum:
+       name: '*'
+       state: latest  
