@@ -6,4 +6,8 @@
   -  name: Update OS
      yum:
        name: '*'
-       state: latest  
+       state: latest
+  -  name: Copy file
+     copy:
+       src: demo.txt
+       dest: /tmp/demo.txt       
