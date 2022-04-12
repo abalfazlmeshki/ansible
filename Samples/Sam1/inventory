@@ -1,6 +1,6 @@
 [centos]
-ans1 ansible_host 192.168.62.170
-ans2 ansible_host 192.168.62.171
+ans1 ansible_host=192.168.62.170
+ans2 ansible_host=192.168.62.171
 [ubuntu]
-ans3 ansible_host 192.168.62.173
-ans4 ansible_host 192.168.62.174
+ans3 ansible_host=192.168.62.173
+ans4 ansible_host=192.168.62.174
