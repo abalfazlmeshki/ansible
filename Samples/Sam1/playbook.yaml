@@ -1,5 +1,7 @@
 - hosts: centos
   become: false 
+  vars:
+    Greeting: hello_now
   tasks:
   -  name: check connection
      ping:
@@ -10,4 +12,7 @@
   -  name: Copy file
      copy:
        src: demo.txt
-       dest: /tmp/demo.txt       
+       dest: /tmp/demo.txt
+  -  name: echo
+     command: echo 'set {{Greeting}} to this'
+   
